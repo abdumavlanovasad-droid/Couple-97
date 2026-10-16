@@ -24,7 +24,7 @@ body{background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"S
 .btn:active{transform:scale(.97)}
 .pr{background:linear-gradient(90deg,var(--a),var(--a2));color:#fff}
 .btn.on{outline:2px solid var(--a)}
-input[type=text],input[type=password],input[type=date]{width:100%;padding:14px;border-radius:16px;border:1px solid var(--bd);background:var(--gl);color:var(--tx);font-size:16px;margin:6px 0 14px;outline:0}
+input[type=email],input[type=text],input[type=password],input[type=date]{width:100%;padding:14px;border-radius:16px;border:1px solid var(--bd);background:var(--gl);color:var(--tx);font-size:16px;margin:6px 0 14px;outline:0}
 label{font-size:13px;opacity:.7}
 .card{padding:20px;margin-bottom:16px}
 .big{font-size:56px;font-weight:800;text-align:center;line-height:1;background:linear-gradient(90deg,var(--a),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -85,6 +85,10 @@ h2{margin:6px 0 16px}
  <div class="logo">Couple 97</div><div class="sub" data-t="signin"></div>
  <button class="btn gl" onclick="login('g')"><b style="color:#ea4335">G</b> <span data-t="google"></span></button>
  <button class="btn gl" onclick="login('f')"><b style="color:#1877f2">f</b> <span data-t="fb"></span></button>
+ <div class="sub" style="margin:6px 0" data-t="or"></div>
+ <input type="email" id="em" data-p="em" autocomplete="email"><input type="password" id="ps" data-p="pwd" autocomplete="current-password">
+ <button class="btn pr" onclick="emAuth(0)" data-t="login2"></button><button class="btn gl" onclick="emAuth(1)" data-t="reg"></button>
+ <button class="link" style="display:block;margin:0 auto" onclick="emReset()" data-t="forgot"></button><p class="sub" id="ae" style="color:#e53935;margin:8px 0 0"></p>
 </div>
 
 <div class="v" id="link">
@@ -132,6 +136,7 @@ h2{margin:6px 0 16px}
 
 <div class="v" id="menu">
  <h2 data-t="menu"></h2>
+ <div class="gl card" style="text-align:center"><label data-t="users"></label><div class="big" id="uc" style="margin-top:8px">–</div></div>
  <div class="gl mi" onclick="show('prof')"><span>👤 <span data-t="profile"></span></span>›</div>
  <div class="gl mi" onclick="show('thm')"><span>🎨 <span data-t="colors"></span></span>›</div>
  <div class="gl mi" onclick="show('lng')"><span>🌐 <span data-t="lang"></span></span>›</div>
@@ -166,7 +171,13 @@ try{var t0=JSON.parse(localStorage.getItem('c97'));if(t0)S=Object.assign(S,t0);M
 function sv(){try{localStorage.setItem('c97',JSON.stringify(S))}catch(e){}}
 function svm(){try{localStorage.setItem('c97m',JSON.stringify(M))}catch(e){}}
 var $=function(i){return document.getElementById(i)};
-var T={signin:['Рўйхатдан ўтинг','Регистрация','Sign up'],google:['Google орқали кириш','Войти через Google','Continue with Google'],fb:['Facebook орқали кириш','Войти через Facebook','Continue with Facebook'],
+var T={users:['Сайтдаги фойдаланувчилар','Пользователей на сайте','Users on the site'],or:['ёки почта билан','или по почте','or with email'],em:['Почта','Эл. почта','Email'],pwd:['Пароль (камида 6 белги)','Пароль (мин. 6 символов)','Password (min 6 chars)'],
+login2:['Кириш','Войти','Sign in'],reg:['Рўйхатдан ўтиш','Регистрация','Create account'],forgot:['Паролни унутдим','Забыли пароль','Forgot password'],
+badcred:['Почта ёки пароль нотўғри','Неверная почта или пароль','Wrong email or password'],inuse:['Бу почта аллақачон рўйхатдан ўтган','Эта почта уже зарегистрирована','Email already registered'],
+weak:['Пароль камида 6 белги бўлсин','Пароль минимум 6 символов','Password must be 6+ characters'],sent:['Паролни тиклаш хати юборилди','Письмо для сброса пароля отправлено','Password reset email sent'],badem:['Почтани тўғри киритинг','Введите корректную почту','Enter a valid email'],
+out:['Чиқиш','Выйти','Sign out'],nocode:['Бундай код топилмади','Код не найден','Code not found'],selfc:['Бу сизнинг кодингиз','Это ваш код','This is your own code'],
+waitp:['Кутилмоқда: жуфтингиз ҳам сизнинг кодингизни киритиши керак','Ждём: партнёр тоже должен ввести ваш код','Waiting: your partner must enter your code too'],
+signin:['Рўйхатдан ўтинг','Регистрация','Sign up'],google:['Google орқали кириш','Войти через Google','Continue with Google'],fb:['Facebook орқали кириш','Войти через Facebook','Continue with Facebook'],
 linksub:['Жуфтингизни улаймиз','Соединим вас с партнёром','Connect with your partner'],mycode:['Сизнинг реферал кодингиз','Ваш реферальный код','Your referral code'],copy:['Нусха олиш','Копировать','Copy'],
 pcode:['Жуфтингиз коди','Код партнёра','Partner code'],since:['Бирга бўлган сана','Дата начала','Together since'],link:['Улаш','Соединить','Connect'],
 home:['Главный','Главная','Home'],chat:['Чат','Чат','Chat'],games:['Игры','Игры','Games'],together:['Бирга бўлганимизга','Мы вместе уже','Together for'],days:['кун','дней','days'],
@@ -283,15 +294,13 @@ hue(S.h);if(S.theme)th(S.theme);document.documentElement.style.setProperty('--cb
 if(S.code)$('mycode').textContent=S.code;tr();
 </script><script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import{getAuth,onAuthStateChanged,signInWithPopup,signInWithRedirect,getRedirectResult,GoogleAuthProvider,FacebookAuthProvider,signOut}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import{getFirestore,doc,getDoc,setDoc,updateDoc,addDoc,collection,query,where,orderBy,limitToLast,onSnapshot,serverTimestamp,getDocs,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import{getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail,signInWithPopup,signInWithRedirect,getRedirectResult,GoogleAuthProvider,FacebookAuthProvider,signOut}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import{getFirestore,doc,getDoc,setDoc,updateDoc,addDoc,collection,query,where,orderBy,limitToLast,onSnapshot,serverTimestamp,getDocs,writeBatch,getCountFromServer}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* === 1) Firebase konsolidan olingan sozlamalarni shu yerga qo'ying === */
 const firebaseConfig={apiKey:"AIzaSyDasZt4g9MjfL-V36tQgkzRkX7HxpiPz00",authDomain:/(web\.app|firebaseapp\.com)$/.test(location.hostname)?location.hostname:"couple-97.firebaseapp.com",projectId:"couple-97",storageBucket:"couple-97.firebasestorage.app",messagingSenderId:"9429553296",appId:"1:9429553296:web:0d17f59557e19effe98815"};
 
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
-Object.assign(T,{out:['Чиқиш','Выйти','Sign out'],nocode:['Бундай код топилмади','Код не найден','Code not found'],selfc:['Бу сизнинг кодингиз','Это ваш код','This is your own code'],
- waitp:['Кутилмоқда: жуфтингиз ҳам сизнинг кодингизни киритиши керак','Ждём: партнёр тоже должен ввести ваш код','Waiting: your partner must enter your code too']});
 const sv0=window.sv;let me,cid,pid,ready=false,pd=null,pu,mu,lastSince='',tm;
 window.online=false;
 async function push(){if(!me||!ready)return;try{await setDoc(doc(db,'users',me.uid),{nick:S.nick,photo:S.photo||''},{merge:true});
@@ -309,12 +318,16 @@ function startCouple(){pu&&pu();mu&&mu();pd=null;
  pu=onSnapshot(doc(db,'users',pid),s=>{pd=s.data({serverTimestamps:'estimate'})||{};S.pn=pd.nick||'';S.pph=pd.photo||'';pcalc()});
  mu=onSnapshot(query(collection(db,'couples',cid,'messages'),orderBy('ts'),limitToLast(200)),qs=>{
   window.M=qs.docs.map(x=>{const d=x.data({serverTimestamps:'estimate'});return{t:d.t,v:d.v,ts:d.ts&&d.ts.toMillis?d.ts.toMillis():Date.now(),me:d.from==me.uid}});if(cur=='chat')rc()})}
+async function cnt(){try{const c=await getCountFromServer(collection(db,'members'));$('uc').textContent=c.data().count}catch(e){}}
+setInterval(()=>{if(me)cnt()},45000);
 onAuthStateChanged(auth,async u=>{
  me=u;ready=false;
  if(!u){pu&&pu();mu&&mu();show('auth');return}
  const uref=doc(db,'users',u.uid);let d=(await getDoc(uref)).data()||{};
- if(!d.code){d.code=await mkCode(u.uid);d.nick=d.nick||u.displayName||'';await setDoc(uref,{nick:d.nick,photo:d.photo||'',code:d.code},{merge:true})}
+ if(!d.code){d.code=await mkCode(u.uid);d.nick=d.nick||u.displayName||(u.email||'').split('@')[0];await setDoc(uref,{nick:d.nick,photo:d.photo||'',code:d.code},{merge:true})}
  S.nick=d.nick||'';S.photo=d.photo||'';S.code=d.code;ready=true;sv0();$('mycode').textContent=S.code;beat(true);
+ try{const mr=doc(db,'members',u.uid);if(!(await getDoc(mr)).exists())await setDoc(mr,{t:serverTimestamp()})}catch(e){}
+ cnt();
  onSnapshot(query(collection(db,'couples'),where('members','array-contains',u.uid)),qs=>{
   if(qs.empty){cid=null;if(cur=='auth'||cur=='home')show('link');return}
   const c=qs.docs[0],x=c.data(),np=x.members.find(m=>m!=u.uid);S.since=x.since||'';lastSince=S.since;sv0();
@@ -323,6 +336,12 @@ onAuthStateChanged(auth,async u=>{
 getRedirectResult(auth).catch(e=>alert(e.code||e.message));
 window.login=async p=>{const pr=p=='f'?new FacebookAuthProvider():new GoogleAuthProvider();const ios=/iPhone|iPad|iPod/.test(navigator.userAgent)||(/Safari/.test(navigator.userAgent)&&!/Chrome|Android/.test(navigator.userAgent));
  try{if(ios)await signInWithRedirect(auth,pr);else await signInWithPopup(auth,pr)}catch(e){alert(e.code||e.message)}};
+const EM={'auth/invalid-credential':'badcred','auth/wrong-password':'badcred','auth/user-not-found':'badcred','auth/email-already-in-use':'inuse','auth/weak-password':'weak','auth/invalid-email':'badem'};
+function aerr(e){$('ae').textContent=EM[e.code]?t(EM[e.code]):(e.code||e.message)}
+window.emAuth=async reg=>{const em=$('em').value.trim(),ps=$('ps').value;$('ae').textContent='';if(!em)return aerr({code:'auth/invalid-email'});
+ try{await(reg?createUserWithEmailAndPassword:signInWithEmailAndPassword)(auth,em,ps)}catch(e){aerr(e)}};
+window.emReset=async()=>{const em=$('em').value.trim();$('ae').textContent='';if(!em)return aerr({code:'auth/invalid-email'});
+ try{await sendPasswordResetEmail(auth,em);$('ae').style.color='#2ecc71';$('ae').textContent=t('sent')}catch(e){$('ae').style.color='#e53935';aerr(e)}};
 window.logout=async()=>{await beat(false);await signOut(auth);location.reload()};
 window.doLink=async()=>{const code=$('pc').value.trim().toUpperCase(),lk=$('lk');if(!code)return;lk.textContent='';
  try{const cs=await getDoc(doc(db,'codes',code));if(!cs.exists()){lk.textContent=t('nocode');return}
