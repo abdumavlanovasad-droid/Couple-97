@@ -283,11 +283,11 @@ hue(S.h);if(S.theme)th(S.theme);document.documentElement.style.setProperty('--cb
 if(S.code)$('mycode').textContent=S.code;tr();
 </script><script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import{getAuth,onAuthStateChanged,signInWithPopup,GoogleAuthProvider,FacebookAuthProvider,signOut}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import{getAuth,onAuthStateChanged,signInWithPopup,signInWithRedirect,getRedirectResult,GoogleAuthProvider,FacebookAuthProvider,signOut}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import{getFirestore,doc,getDoc,setDoc,updateDoc,addDoc,collection,query,where,orderBy,limitToLast,onSnapshot,serverTimestamp,getDocs,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* === 1) Firebase konsolidan olingan sozlamalarni shu yerga qo'ying === */
-const firebaseConfig={apiKey:"AIzaSyDasZt4g9MjfL-V36tQgkzRkX7HxpiPz00",authDomain:"couple-97.firebaseapp.com",projectId:"couple-97",storageBucket:"couple-97.firebasestorage.app",messagingSenderId:"9429553296",appId:"1:9429553296:web:0d17f59557e19effe98815"};
+const firebaseConfig={apiKey:"AIzaSyDasZt4g9MjfL-V36tQgkzRkX7HxpiPz00",authDomain:/(web\.app|firebaseapp\.com)$/.test(location.hostname)?location.hostname:"couple-97.firebaseapp.com",projectId:"couple-97",storageBucket:"couple-97.firebasestorage.app",messagingSenderId:"9429553296",appId:"1:9429553296:web:0d17f59557e19effe98815"};
 
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 Object.assign(T,{out:['Чиқиш','Выйти','Sign out'],nocode:['Бундай код топилмади','Код не найден','Code not found'],selfc:['Бу сизнинг кодингиз','Это ваш код','This is your own code'],
@@ -320,7 +320,9 @@ onAuthStateChanged(auth,async u=>{
   const c=qs.docs[0],x=c.data(),np=x.members.find(m=>m!=u.uid);S.since=x.since||'';lastSince=S.since;sv0();
   if(c.id!=cid||np!=pid){cid=c.id;pid=np;startCouple()}
   if(cur=='auth'||cur=='link')show('home');else ui()})});
-window.login=async p=>{try{await signInWithPopup(auth,p=='f'?new FacebookAuthProvider():new GoogleAuthProvider())}catch(e){alert(e.code||e.message)}};
+getRedirectResult(auth).catch(e=>alert(e.code||e.message));
+window.login=async p=>{const pr=p=='f'?new FacebookAuthProvider():new GoogleAuthProvider();const ios=/iPhone|iPad|iPod/.test(navigator.userAgent)||(/Safari/.test(navigator.userAgent)&&!/Chrome|Android/.test(navigator.userAgent));
+ try{if(ios)await signInWithRedirect(auth,pr);else await signInWithPopup(auth,pr)}catch(e){alert(e.code||e.message)}};
 window.logout=async()=>{await beat(false);await signOut(auth);location.reload()};
 window.doLink=async()=>{const code=$('pc').value.trim().toUpperCase(),lk=$('lk');if(!code)return;lk.textContent='';
  try{const cs=await getDoc(doc(db,'codes',code));if(!cs.exists()){lk.textContent=t('nocode');return}
